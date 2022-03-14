@@ -48,7 +48,8 @@ namespace testezim.Controllers
                 string result = "id:" + results["teacherid"] + " fname: " + results["teacherfname"] + " lname: " + results["teacherlname"];
                 BasicInfo.Add(result);//add string above to BasicInfo list
             }
-
+            //close DB connection
+            conn.Close();
             return BasicInfo;
         }
     }

@@ -14,5 +14,11 @@ namespace testezim.Controllers
 
             return View();
         }
+
+        public ActionResult Season()
+        {
+            return View();
+        }
+
     }
 }
