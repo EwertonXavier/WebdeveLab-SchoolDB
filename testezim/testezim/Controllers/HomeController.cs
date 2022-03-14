@@ -15,8 +15,19 @@ namespace testezim.Controllers
             return View();
         }
 
-        public ActionResult Season()
+        public ActionResult Season(int? id)
         {
+            if(id == null)
+            {
+                ViewBag.id = "unknown";
+                ViewBag.name = "unknown";
+            }
+            else
+            {
+                TeacherDataController teacherController = new TeacherDataController();
+                ViewBag.id = id;
+                ViewBag.message = teacherController.BasicInfo();
+            }
             return View();
         }
 

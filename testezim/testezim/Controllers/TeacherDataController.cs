@@ -50,6 +50,7 @@ namespace testezim.Controllers
             }
             //close DB connection
             conn.Close();
+
             return BasicInfo;
         }
     }
