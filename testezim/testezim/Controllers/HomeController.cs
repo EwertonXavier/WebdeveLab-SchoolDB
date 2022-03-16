@@ -26,7 +26,7 @@ namespace testezim.Controllers
             {
                 TeacherDataController teacherController = new TeacherDataController();
                 ViewBag.id = id;
-                ViewBag.message = teacherController.BasicInfo();
+                ViewBag.result = teacherController.BasicInfo().ToArray();                    ;
             }
             return View();
         }

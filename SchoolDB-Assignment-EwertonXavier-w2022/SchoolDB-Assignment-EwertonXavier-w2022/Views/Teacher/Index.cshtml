@@ -1,0 +1,17 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2>Index</h2>
+
+<p>@ViewBag.TeacherData</p>
+
+@{
+    foreach (string row in ViewBag.TeacherData)
+    {
+        <p>@row</p>
+    }
+
+
+}

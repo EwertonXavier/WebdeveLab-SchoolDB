@@ -25,7 +25,7 @@ namespace testezim.Controllers
         [HttpGet]
         public IEnumerable<string> BasicInfo()
         {
-            List<string> BasicInfo = new List<string> { }; // initiate list
+            List<string> resultList = new List<string> { }; // initiate list
 
             //instantiate connection with schoolDB using SchoolDbContext
             MySqlConnection conn = new SchoolDbContext().AccessDatabase();
@@ -45,13 +45,18 @@ namespace testezim.Controllers
             //read each line from results. results.Read() returns false if row is null. 
             while (results.Read())
             {
-                string result = "id:" + results["teacherid"] + " fname: " + results["teacherfname"] + " lname: " + results["teacherlname"];
-                BasicInfo.Add(result);//add string above to BasicInfo list
+                string result = "";//var to store the result of each row.
+                for (int i = 0; i < results.FieldCount; i++)
+                {
+                    result += results.GetName(i)+": " + results[i]+", ";
+                    
+                }
+                result = result.TrimEnd(',',' ');
+                resultList.Add(result);//add result string above to resultlist
             }
             //close DB connection
             conn.Close();
-
-            return BasicInfo;
+            return resultList;
         }
     }
 }
