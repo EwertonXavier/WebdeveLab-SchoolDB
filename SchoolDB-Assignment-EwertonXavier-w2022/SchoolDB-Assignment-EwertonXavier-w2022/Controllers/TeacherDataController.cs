@@ -38,7 +38,6 @@ namespace SchoolDB_Assignment_EwertonXavier_w2022.Controllers
             //run command and stores result into result
             MySqlDataReader results = cmd.ExecuteReader();
 
-
             //read results
             while (results.Read())
             {
