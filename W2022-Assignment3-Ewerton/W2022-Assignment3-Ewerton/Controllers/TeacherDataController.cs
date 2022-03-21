@@ -6,7 +6,11 @@ using System.Net.Http;
 using System.Web.Http;
 using W2022_Assignment3_Ewerton.Models;
 using MySql.Data.MySqlClient;
-
+// Upgrade proposal: Function QuerySchoolDB( string query)
+// I had created a class to query the school database and return result as a Array String(other project, same assignment).
+// I thought about working to transform the results into a JSON and then creating objects using them.
+// The advantage would be a reusable function to query the SchoolDB receiving a query as parameter
+// Maybe I am going to work on this in the future.
 namespace W2022_Assignment3_Ewerton.Controllers
 {
     /// <summary>
@@ -17,11 +21,12 @@ namespace W2022_Assignment3_Ewerton.Controllers
         /// <summary>
         /// Describe all information related to teacherid stored inside the teachers table
         /// </summary>
+        /// <example>GET:api/TeacherData/Describe/5 </example>
         /// <param name="teacherid"></param>
-        /// <returns></returns>
+        /// <returns>Teacher teacher</returns>
         [HttpGet]
         [Route("api/TeacherData/Describe/{teacherid}")]
-        public Teacher Describe(int teacherid)
+        public Teacher Describe(int teacherid = 0)
         {
             //creating db context
             SchoolDbContext dbCtx = new SchoolDbContext();
@@ -87,7 +92,7 @@ namespace W2022_Assignment3_Ewerton.Controllers
             MySqlDataReader teachers = cmd.ExecuteReader();
 
             //list to store all Intances of Teachers created from db
-            List<Teacher> teacherList = new List<Teacher>(); 
+            List<Teacher> teacherList = new List<Teacher>();
 
             while (teachers.Read()) //reads each row from query
             {
@@ -102,9 +107,53 @@ namespace W2022_Assignment3_Ewerton.Controllers
                 teacherList.Add(teacher); // adds the created teacher to the list
             }
 
+
+            //Closing connection
+            conn.Close();
             return teacherList;
         }
 
+        /// <summary>
+        /// Method to Create a new teacher in teachers table
+        /// </summary>
+        /// <example> 
+        /// POST /api/teacherdata/new 
+        /// type x-www-form-urlencoded 
+        ///</example>
+        /// <param name="teacher">
+        /// FName:'Ewerton'
+        /// LName:'Xavier de Freitas'
+        /// HireDate:03/18/2022
+        /// EmployeeNumber:'T9123'
+        /// Salary:45.78</param>
+        /// <returns></returns>
+        [HttpPost]
+        public object New([FromBody] Teacher teacher) //[FroBody] prepares controller to receive properties from body request
+        {
+            //create a connection with DB
+            MySqlConnection conn = new SchoolDbContext().AccessDatabase();
+
+            //open connection
+            conn.Open();
+
+            //create command
+            MySqlCommand cmd = conn.CreateCommand();
+
+            //write command 
+            Console.Write(teacher.HireDate);
+            string hireDate = teacher.HireDate.ToString("MM/dd/yyyy");//transform datetime to string using parameter format (couldn't get to make datetime to mysql date work)
+            cmd.CommandText = "INSERT INTO teachers(teacherfname,teacherlname, employeenumber, hiredate, salary) VALUES ( "+ teacher.FName+", "+ teacher.LName+", "+ teacher.EmployeeNumber+", STR_TO_DATE('"+ hireDate + "', '%m/%d/%Y'), " + teacher.Salary +"); ";
+
+            //execute command
+            MySqlDataReader reader = cmd.ExecuteReader();
+            conn.Close();//closes command
+            if (reader.RecordsAffected>0)//check how many rows were affected. The idea would be: check if there if the number of rows affected is greater than 0. To be careful we could use =1
+            {
+                return Request.CreateResponse(HttpStatusCode.OK); //creates  200 http response
+            }
+
+            else return Request.CreateResponse(HttpStatusCode.InternalServerError); //creates 500 http response. Because all key from DB can be null these is never executed
+        }
 
     }
 }
