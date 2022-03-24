@@ -1,0 +1,19 @@
+﻿@model List<W2022_Assignment3_Ewerton.Models.Teacher>
+
+@{
+    ViewBag.Title = "List";
+}
+
+<h2>List Of Teachers</h2>
+
+<h3>There are @Model.Count() teachers: </h3>
+
+@{
+    foreach (W2022_Assignment3_Ewerton.Models.Teacher teacher in @Model)
+    {
+        string url = "/Teacher/Show/";
+        <div>
+            <a href="@url@teacher.Id">@teacher.FName  @teacher.LName</a>
+        </div>
+    }
+}
