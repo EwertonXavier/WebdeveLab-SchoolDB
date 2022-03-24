@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using System.Net.Http;
 using W2022_Assignment3_Ewerton.Models;
 namespace W2022_Assignment3_Ewerton.Controllers
 {
@@ -36,7 +37,7 @@ namespace W2022_Assignment3_Ewerton.Controllers
         //PS:From my research, we should use id instead of author id due to routeConfig.cs.
         //   But for me is a little strange.
         [Route("Teacher/Show/{id}")]
-        public ActionResult Show(int id)
+        public ActionResult Show(int id = 0)
         {
             //create controller
             TeacherDataController controller = new TeacherDataController();
@@ -44,6 +45,33 @@ namespace W2022_Assignment3_Ewerton.Controllers
             Teacher teacherDetails = controller.Describe(id);
             //sends teacherDetails to the Show View
             return View(teacherDetails);
+        }   
+        
+        /// <summary>
+        /// Contains form to create a new teacher.
+        /// </summary>
+        /// <returns>View.New.cshtml</returns>
+        [HttpGet]
+        [Route("Teacher/New/")]
+        public ActionResult New()
+        {
+             return View();
+        }
+
+        [HttpPost]
+        [Route("Teacher/New/")]
+        public ActionResult New(string teacherFName,string teacherLName, string employeeId, DateTime hiredate,double salary)
+        {
+            Teacher newTeacher = new Teacher();
+            newTeacher.FName = teacherFName;
+            newTeacher.LName = teacherLName;
+            newTeacher.EmployeeNumber = employeeId;
+            newTeacher.HireDate=hiredate;
+            newTeacher.Salary = salary;
+            TeacherDataController controller = new TeacherDataController();
+            string message = controller.New(newTeacher);
+            ViewBag.Message = message;
+            return View();
         }
 
     }

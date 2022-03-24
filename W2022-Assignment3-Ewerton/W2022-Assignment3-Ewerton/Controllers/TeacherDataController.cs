@@ -41,7 +41,13 @@ namespace W2022_Assignment3_Ewerton.Controllers
             MySqlCommand cmd = conn.CreateCommand();
 
             //writing command query which select all information from teacher table using parameter teacher to filter rows
-            cmd.CommandText = "SELECT * FROM teachers t WHERE teacherid =" + teacherid + " ;";
+            cmd.CommandText = "SELECT * FROM teachers t WHERE teacherid = @key";
+
+            //create parameter and prepares command
+            cmd.Parameters.AddWithValue("@key",teacherid);
+            cmd.Prepare();
+
+            
 
             //execute command
             MySqlDataReader teachers = cmd.ExecuteReader();
@@ -126,9 +132,9 @@ namespace W2022_Assignment3_Ewerton.Controllers
         /// HireDate:03/18/2022
         /// EmployeeNumber:'T9123'
         /// Salary:45.78</param>
-        /// <returns></returns>
+        /// <returns>message "Success" if successfull or "Failed" </returns>
         [HttpPost]
-        public object New([FromBody] Teacher teacher) //[FroBody] prepares controller to receive properties from body request
+        public string New([FromBody] Teacher teacher) //[FroBody] prepares controller to receive properties from body request
         {
             //create a connection with DB
             MySqlConnection conn = new SchoolDbContext().AccessDatabase();
@@ -142,17 +148,26 @@ namespace W2022_Assignment3_Ewerton.Controllers
             //write command 
             Console.Write(teacher.HireDate);
             string hireDate = teacher.HireDate.ToString("MM/dd/yyyy");//transform datetime to string using parameter format (couldn't get to make datetime to mysql date work)
-            cmd.CommandText = "INSERT INTO teachers(teacherfname,teacherlname, employeenumber, hiredate, salary) VALUES ( "+ teacher.FName+", "+ teacher.LName+", "+ teacher.EmployeeNumber+", STR_TO_DATE('"+ hireDate + "', '%m/%d/%Y'), " + teacher.Salary +"); ";
+            cmd.CommandText = "INSERT INTO teachers(teacherfname,teacherlname, employeenumber, hiredate, salary) VALUES ( "+"@teacherFName"+"," + "@teacherLName" + ", " + "@employeeNumber" + ", STR_TO_DATE(@hiredate, '%m/%d/%Y'), " + "@salary" + "); ";
+
+            //create parameters
+            cmd.Parameters.AddWithValue("@teacherFName", teacher.FName);
+            cmd.Parameters.AddWithValue("@teacherLName", teacher.LName);
+            cmd.Parameters.AddWithValue("@employeeNumber", teacher.EmployeeNumber);
+            cmd.Parameters.AddWithValue("@hiredate", hireDate);
+            cmd.Parameters.AddWithValue("@salary", teacher.Salary);
+            cmd.Prepare();
 
             //execute command
             MySqlDataReader reader = cmd.ExecuteReader();
             conn.Close();//closes command
             if (reader.RecordsAffected>0)//check how many rows were affected. The idea would be: check if there if the number of rows affected is greater than 0. To be careful we could use =1
             {
-                return Request.CreateResponse(HttpStatusCode.OK); //creates  200 http response
+                return "Success";
+               // return Request.CreateResponse(HttpStatusCode.OK); //creates  200 http response. Aparently, this is not being used anymore
             }
 
-            else return Request.CreateResponse(HttpStatusCode.InternalServerError); //creates 500 http response. Because all key from DB can be null these is never executed
+            else return "Failed";//Request.CreateResponse(HttpStatusCode.InternalServerError); //creates 500 http response. Because all key from DB can be null these is never executed
         }
 
     }
